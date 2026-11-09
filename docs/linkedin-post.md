@@ -19,6 +19,6 @@ One troubleshooting lesson from this project was that creating an ACL is not eno
 
 This project gave me more hands-on experience with network segmentation, routing, access control, and technical documentation as I continue preparing for the CCNA.
 
-GitHub: [ADD YOUR REPOSITORY LINK]
+GitHub: https://github.com/trerozay/CCNA-COFFEE-LAB
 
 #Cisco #CCNA #Networking #PacketTracer #VLAN #Cybersecurity #ITSupport #NetworkEngineering #LearningInPublic

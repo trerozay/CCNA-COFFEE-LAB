@@ -1,0 +1,73 @@
+! Coffee Shop router-on-a-stick reference
+! Replace placeholders before using this configuration.
+
+enable
+configure terminal
+hostname CoffeeShop-R1
+no ip domain-lookup
+enable secret <ENABLE_SECRET>
+service password-encryption
+banner motd # Authorized users only. #
+
+interface gigabitethernet0/1
+ description TRUNK_TO_COFFEESHOP_SW1
+ no shutdown
+
+interface gigabitethernet0/1.10
+ description OFFICE_GATEWAY
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+
+interface gigabitethernet0/1.20
+ description CORPORATE_WIFI_GATEWAY
+ encapsulation dot1Q 20
+ ip address 192.168.20.1 255.255.255.0
+
+interface gigabitethernet0/1.30
+ description GUEST_WIFI_GATEWAY
+ encapsulation dot1Q 30
+ ip address 192.168.30.1 255.255.255.0
+ ip access-group GUEST_RESTRICTIONS in
+
+interface gigabitethernet0/1.99
+ description MANAGEMENT_GATEWAY
+ encapsulation dot1Q 99 native
+ ip address 192.168.99.1 255.255.255.0
+
+ip dhcp excluded-address 192.168.10.1 192.168.10.20
+ip dhcp excluded-address 192.168.20.1 192.168.20.20
+ip dhcp excluded-address 192.168.30.1 192.168.30.20
+
+ip dhcp pool OFFICE
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ dns-server 8.8.8.8
+
+ip dhcp pool CORP_WIFI
+ network 192.168.20.0 255.255.255.0
+ default-router 192.168.20.1
+ dns-server 8.8.8.8
+
+ip dhcp pool GUEST_WIFI
+ network 192.168.30.0 255.255.255.0
+ default-router 192.168.30.1
+ dns-server 8.8.8.8
+
+ip access-list extended GUEST_RESTRICTIONS
+ remark Allow clients to obtain DHCP leases
+ permit udp any eq bootpc any eq bootps
+ remark Block guest traffic to internal networks
+ deny ip 192.168.30.0 0.0.0.255 192.168.10.0 0.0.0.255
+ deny ip 192.168.30.0 0.0.0.255 192.168.20.0 0.0.0.255
+ deny ip 192.168.30.0 0.0.0.255 192.168.99.0 0.0.0.255
+ remark Permit guest traffic to other destinations
+ permit ip 192.168.30.0 0.0.0.255 any
+
+line console 0
+ password <CONSOLE_PASSWORD>
+ login
+ logging synchronous
+ exec-timeout 10 0
+
+end
+copy running-config startup-config

@@ -1,0 +1,67 @@
+! Coffee Shop Layer 2 switch reference
+! Replace placeholders before using this configuration.
+
+enable
+configure terminal
+hostname CoffeeShop-SW1
+no ip domain-lookup
+enable secret <ENABLE_SECRET>
+service password-encryption
+banner motd # Authorized users only. #
+
+vlan 10
+ name OFFICE
+vlan 20
+ name CORP_WIFI
+vlan 30
+ name GUEST_WIFI
+vlan 99
+ name MANAGEMENT
+
+interface range fastethernet0/1-10
+ description OFFICE_DEVICES
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+
+interface range fastethernet0/11-12
+ description CORPORATE_WIFI
+ switchport mode access
+ switchport access vlan 20
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+
+interface range fastethernet0/13-14
+ description GUEST_WIFI
+ switchport mode access
+ switchport access vlan 30
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+
+interface gigabitethernet0/1
+ description TRUNK_TO_COFFEESHOP_R1
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 10,20,30,99
+ no shutdown
+
+interface vlan 99
+ description SWITCH_MANAGEMENT
+ ip address 192.168.99.2 255.255.255.0
+ no shutdown
+
+ip default-gateway 192.168.99.1
+
+line console 0
+ password <CONSOLE_PASSWORD>
+ login
+ logging synchronous
+ exec-timeout 10 0
+
+line vty 0 15
+ login local
+ transport input ssh
+
+end
+copy running-config startup-config
